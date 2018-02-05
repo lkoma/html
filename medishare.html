@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>login</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="http://p2ui5lvyq.bkt.clouddn.com/prism.css">
+    <link rel="shortcut icon" type="image/ico" href="http://p2ui5lvyq.bkt.clouddn.com/favicon-medishare.ico"/>
+    <!-- 先引入 Vue -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="http://p2ui5lvyq.bkt.clouddn.com/prism.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: url('http://p2ui5lvyq.bkt.clouddn.com/bg-jihe.jpg') center top no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .wrap {
+            width: 50%;
+            padding: 0 15px;
+            border-radius: 5px;
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            overflow: hidden;
+            margin-left: -25%;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);  
+            z-index: 100;
+        }
+        .wrap::before {
+            content: "";  
+            position: absolute;  
+            top: 0px;  
+            left: 0px;  
+            right: 0px;  
+            bottom: 0px;  
+            z-index: -1;
+            -webkit-filter: blur(20px);  
+            filter: blur(20px);
+            margin: -30px;
+            background: url('http://p2ui5lvyq.bkt.clouddn.com/bg-jihe.jpg') center top;  
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .submit {
+            background-color: rgb(51, 198, 226);
+            border: 0;
+            width: 50%;
+            height: 42px;
+        }
+        .submit:hover {
+            background-color: rgb(27,184,202);
+        }
+        .el-form-item__label {
+            color: #fff;
+        }
+        .input {
+            width: 50%;
+        }
+        form {
+            margin-left: 150px;
+        }
+        .img {
+            margin: 0 auto;
+            display: block;
+            padding: 25px 0;
+        }
+        .mask {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,.5);
+            z-index: 2018
+        }
+        .popup {
+            position: absolute;
+            width: 50%;
+            height: 80%;
+            background-color: rgba(255, 255, 255, .5);
+            border-radius: 10px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            overflow: scroll;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity .5s;
+        }
+        .fade-enter, .fade-leave-to{
+            opacity: 0;
+        }
+        /* pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
+        } */
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="wrap">
+            <img class="img" src="http://p2ui5lvyq.bkt.clouddn.com/logo-medishare.png" alt="medishare">
+            <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
+                <el-form-item label="用户名">
+                    <el-input v-model="formLabelAlign.username" class="input"></el-input>
+                </el-form-item>
+                <el-form-item label="密码">
+                    <el-input v-model="formLabelAlign.password" class="input"></el-input>
+                </el-form-item>
+                <el-form-item label="环境">
+                    <el-select v-model="env" placeholder="请选择">
+                        <el-option v-for="item in envs" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="角色">
+                    <el-select v-model="role" placeholder="请选择">
+                        <el-option v-for="item in roles" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" size="medium" @click="submitForm" class="submit">登录</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+        <transition name="fade">
+            <div class="mask" v-if="show" @click="close">
+                <!-- <div class="popup" @click.stop="void 0">
+                    <pre><code class="language-json">{{data}}</code></pre>
+                </div> -->
+                <div class="popup" @click.stop="void 0">
+                    <pre>
+                        <code class="language-json">{"name": "任海洋"}</code>
+                    </pre>
+                </div>
+            </div>
+        </transition>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    labelPosition: 'right',
+                    formLabelAlign: {
+                        username: '17621155752',
+                        password: '123456'
+                    },
+                    envs: [{
+                        value: 'http://192.168.10.214',
+                        label: '214'
+                    }, {
+                        value: 'http://p3.thedoc.cn',
+                        label: 'p3'
+                    }, {
+                        value: 'http://m2.thedoc.cn',
+                        label: 'm2'
+                    }],
+                    env: 'http://192.168.10.214',
+                    roles: [{
+                        value: '/member/login/',
+                        label: '患者'
+                    }, {
+                        value: '/doctor/login/',
+                        label: '医生'
+                    }, {
+                        value: '/chc/login/',
+                        label: 'CHC'
+                    }],
+                    role: '/member/login/',
+                    data: '',
+                    show: false
+                }
+            },
+            methods: {
+                submitForm() {
+                    const url = this.env + this.role;
+                    axios.post(url, `mobile=${this.formLabelAlign.username}&pwd=${this.formLabelAlign.password}`, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    }).then(res => {
+                        console.log(res);
+                        this.data = res.data;
+                        this.show = true;
+                        // this.data = this.syntaxHighlight(res.data);
+                    }).catch(() => {
+                        this.show = false;
+                    });
+                },
+                close() {
+                    this.show = false;
+                }
+                // syntaxHighlight(json) {
+                //     if (typeof json != 'string') {
+                //         json = JSON.stringify(json, undefined, 2);
+                //     }
+                //     json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+                //     return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                //         var cls = 'number';
+                //         if (/^"/.test(match)) {
+                //             if (/:$/.test(match)) {
+                //                 cls = 'key';
+                //             } else {
+                //                 cls = 'string';
+                //             }
+                //         } else if (/true|false/.test(match)) {
+                //             cls = 'boolean';
+                //         } else if (/null/.test(match)) {
+                //             cls = 'null';
+                //         }
+                //         return '<span class="' + cls + '">' + match + '</span>';
+                //     });
+                // }
+            }
+        })
+    </script>
+</body>
+
+</html>
